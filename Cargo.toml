@@ -1,0 +1,5 @@
+[package]
+
+name = "ipstun"
+version = "0.0.1"
+authors = ["Ted <ted@wurm>"]
