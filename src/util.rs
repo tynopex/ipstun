@@ -103,8 +103,8 @@ pub fn get_u64(raw: &[u8]) -> u64
 pub enum PacketError
 {
     InvalidPacket,
+    IllegalPacket,
     TruncatedPacket,
-    UnrecognizedPacket,
     UnsupportedPacket,
 }
 

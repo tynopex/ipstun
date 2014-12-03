@@ -6,14 +6,14 @@ use super::{PayloadKind,payl_kind};
 
 pub struct Header
 {
-    InitiatorCookie: [u8,..8],
-    ResponderCookie: [u8,..8],
-    NextPayload: PayloadKind,
-    Version: u8,
-    ExchangeType: u8,
-    Flags: u8,
-    MessageID: [u8,..4],
-    Length: u32,
+    pub InitiatorCookie: [u8,..8],
+    pub ResponderCookie: [u8,..8],
+    pub NextPayload: PayloadKind,
+    pub Version: u8,
+    pub ExchangeType: u8,
+    pub Flags: u8,
+    pub MessageID: [u8,..4],
+    pub Length: u32,
 }
 
 
