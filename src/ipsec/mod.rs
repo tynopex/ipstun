@@ -1,7 +1,7 @@
-use util::hex_dump;
+mod isakmp;
 
 
 pub fn dump_packet(dat: &[u8])
 {
-    print!("{}", hex_dump(dat));
+    isakmp::dump_packet(dat)
 }
