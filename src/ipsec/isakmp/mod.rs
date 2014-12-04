@@ -4,10 +4,12 @@ use util::{hex_dump,ParseResult};
 use self::header::Header;
 use self::payload::Payload;
 use self::vid::VendorExt;
+use self::assoc::SecAssoc;
 
 mod header;
 mod payload;
 mod vid;
+mod assoc;
 
 
 #[deriving(Show)]
@@ -73,6 +75,12 @@ fn parse_packet(dat: &[u8]) -> ParseResult<()>
 
         match ty
         {
+            PayloadKind::SA => {
+                let (sa,_) = try!(SecAssoc::parse(payl.Payload));
+                println!("{}", sa);
+                print!("{}", hex_dump(payl.Payload));
+                }
+
             PayloadKind::VID => {
                 let (vid,_) = try!(VendorExt::parse(payl.Payload));
                 println!("{}", vid);
