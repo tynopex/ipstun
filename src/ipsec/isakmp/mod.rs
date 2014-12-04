@@ -57,6 +57,37 @@ fn payl_kind(ty: uint) -> PayloadKind
 }
 
 
+fn parse_assoc(dat: &[u8]) -> ParseResult<()>
+{
+    let (sa,_) = try!(SecAssoc::parse(dat));
+    println!("{}", sa);
+
+    for x in sa.iter()
+    {
+        let (ty,payl) = try!(x);
+
+        println!("{}", payl);
+
+        match ty
+        {
+            _ => { print!("{}", hex_dump(payl.Payload)); }
+        }
+    }
+
+    Ok(((),dat[dat.len()..]))
+}
+
+
+fn parse_vid(dat: &[u8]) -> ParseResult<()>
+{
+    let (vid,_) = try!(VendorExt::parse(dat));
+
+    println!("{}", vid);
+
+    Ok(((),dat[dat.len()..]))
+}
+
+
 fn parse_packet(dat: &[u8]) -> ParseResult<()>
 {
     let (head,_) = try!(Packet::parse(dat));
@@ -71,22 +102,13 @@ fn parse_packet(dat: &[u8]) -> ParseResult<()>
 
         match ty
         {
-            PayloadKind::SA => {
-                let (sa,_) = try!(SecAssoc::parse(payl.Payload));
-                println!("{}", sa);
-                print!("{}", hex_dump(payl.Payload));
-                }
-
-            PayloadKind::VID => {
-                let (vid,_) = try!(VendorExt::parse(payl.Payload));
-                println!("{}", vid);
-                }
-
+            PayloadKind::SA => { try!(parse_assoc(payl.Payload)); }
+            PayloadKind::VID => { try!(parse_vid(payl.Payload)); }
             _ => { print!("{}", hex_dump(payl.Payload)); }
         }
     }
 
-    Ok(((),dat[head.Length as uint..]))
+    Ok(((),dat[dat.len()..]))
 }
 
 pub fn dump_packet(dat: &[u8])

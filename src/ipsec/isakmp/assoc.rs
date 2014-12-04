@@ -1,6 +1,8 @@
 use std::fmt;
 use util::{ParseResult,get_u32};
 use util::PacketError::{TruncatedPacket,UnsupportedPacket};
+use super::{PayloadKind};
+use super::payload::{PayloadIter};
 
 
 const DOI_IPSEC: u32 = 0x00000001;
@@ -47,6 +49,11 @@ impl<'a> SecAssoc<'a>
         }
 
         Ok((sa, dat[SecAssoc::HeaderSize()..]))
+    }
+
+    pub fn iter(&self) -> PayloadIter<'a>
+    {
+        PayloadIter { raw: self.Payload, next_type: PayloadKind::P }
     }
 }
 
