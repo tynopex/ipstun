@@ -4,11 +4,13 @@ use util::{hex_dump,ParseResult};
 use self::packet::Packet;
 use self::vid::VendorExt;
 use self::assoc::SecAssoc;
+use self::proposal::Proposal;
 
 mod packet;
 mod payload;
 mod vid;
 mod assoc;
+mod proposal;
 
 
 #[deriving(Show)]
@@ -57,6 +59,27 @@ fn payl_kind(ty: uint) -> PayloadKind
 }
 
 
+fn parse_proposal(dat: &[u8]) -> ParseResult<()>
+{
+    let (prop,_) = try!(Proposal::parse(dat));
+    println!("{}", prop);
+
+    for x in prop.iter()
+    {
+        let (ty,payl) = try!(x);
+
+        println!("{}", payl);
+
+        match ty
+        {
+            _ => { print!("{}", hex_dump(payl.Payload)); }
+        }
+    }
+
+    Ok(((),dat[dat.len()..]))
+}
+
+
 fn parse_assoc(dat: &[u8]) -> ParseResult<()>
 {
     let (sa,_) = try!(SecAssoc::parse(dat));
@@ -70,6 +93,7 @@ fn parse_assoc(dat: &[u8]) -> ParseResult<()>
 
         match ty
         {
+            PayloadKind::P => { try!(parse_proposal(payl.Payload)); }
             _ => { print!("{}", hex_dump(payl.Payload)); }
         }
     }
