@@ -5,12 +5,14 @@ use self::packet::Packet;
 use self::vid::VendorExt;
 use self::assoc::SecAssoc;
 use self::proposal::Proposal;
+use self::transform::Transform;
 
 mod packet;
 mod payload;
 mod vid;
 mod assoc;
 mod proposal;
+mod transform;
 
 
 #[deriving(Show)]
@@ -59,6 +61,17 @@ fn payl_kind(ty: uint) -> PayloadKind
 }
 
 
+fn parse_transform(dat: &[u8]) -> ParseResult<()>
+{
+    let (tran,_) = try!(Transform::parse(dat));
+    println!("{}", tran);
+
+    print!("{}", hex_dump(tran.Payload));
+
+    Ok(((),dat[dat.len()..]))
+}
+
+
 fn parse_proposal(dat: &[u8]) -> ParseResult<()>
 {
     let (prop,_) = try!(Proposal::parse(dat));
@@ -72,6 +85,7 @@ fn parse_proposal(dat: &[u8]) -> ParseResult<()>
 
         match ty
         {
+            PayloadKind::T => { try!(parse_transform(payl.Payload)); }
             _ => { print!("{}", hex_dump(payl.Payload)); }
         }
     }

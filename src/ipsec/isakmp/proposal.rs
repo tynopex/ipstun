@@ -10,12 +10,12 @@ const PROTO_ISAKMP: u8 = 0x01;
 
 pub struct Proposal<'a>
 {
-    ProposalNum: u8,
-    ProtocolId: u8,
-    SpiSize: u8,
-    NumTransform: u8,
+    pub ProposalNum: u8,
+    pub ProtocolId: u8,
+    pub SpiSize: u8,
+    pub NumTransform: u8,
 
-    Payload: &'a [u8],
+    pub Payload: &'a [u8],
 }
 
 
