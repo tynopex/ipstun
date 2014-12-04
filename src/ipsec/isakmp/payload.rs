@@ -1,5 +1,6 @@
 use std::fmt;
-use util::{ParseResult,get_u16};
+use std::iter;
+use util::{ParseResult,PacketError,get_u16};
 use util::PacketError::{TruncatedPacket,IllegalPacket};
 use super::{PayloadKind,payl_kind};
 
@@ -10,6 +11,15 @@ pub struct Payload<'a>
     pub Length: uint,
     pub Payload: &'a [u8],
 }
+
+
+pub struct PayloadIter<'a>
+{
+    pub next_type: PayloadKind,
+    pub raw: &'a [u8],
+}
+
+pub type PayloadIterResult<'a> = Result<(PayloadKind, Payload<'a>), PacketError>;
 
 
 impl<'a> Payload<'a>
@@ -55,5 +65,32 @@ impl<'a> fmt::Show for Payload<'a>
         try!(write!(f, " Len[{}]", self.Length));
 
         Ok(())
+    }
+}
+
+
+impl<'a> iter::Iterator<PayloadIterResult<'a>> for PayloadIter<'a>
+{
+    fn next(&mut self) -> Option<PayloadIterResult<'a>>
+    {
+        if self.raw.len() > 0
+        {
+            match Payload::parse(self.raw)
+            {
+                Err(e) => Some(Err(e)),
+                Ok((payl,rem)) => {
+                    let ty = self.next_type;
+
+                    self.next_type = payl.NextPayload;
+                    self.raw = rem;
+
+                    Some(Ok((ty,payl)))
+                    },
+            }
+        }
+        else
+        {
+            None
+        }
     }
 }

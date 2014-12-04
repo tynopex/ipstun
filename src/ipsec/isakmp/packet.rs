@@ -2,6 +2,7 @@ use std::fmt;
 use util::{ParseResult,get_u8_4,get_u8_8,get_u32,hex_dump_nospace};
 use util::PacketError::{TruncatedPacket,InvalidPacket,IllegalPacket,UnsupportedPacket};
 use super::{PayloadKind,payl_kind};
+use super::payload::PayloadIter;
 
 
 #[deriving(Show)]
@@ -92,6 +93,11 @@ impl<'a> Packet<'a>
     pub fn flagEnc (&self) -> bool { (self.Flags & 0x01) != 0 }
     pub fn flagCmt (&self) -> bool { (self.Flags & 0x02) != 0 }
     pub fn flagAuth(&self) -> bool { (self.Flags & 0x04) != 0 }
+
+    pub fn iter(&self) -> PayloadIter<'a>
+    {
+        PayloadIter { raw: self.Payload, next_type: self.NextPayload }
+    }
 }
 
 

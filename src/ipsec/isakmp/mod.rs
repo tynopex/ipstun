@@ -2,7 +2,6 @@
 
 use util::{hex_dump,ParseResult};
 use self::packet::Packet;
-use self::payload::Payload;
 use self::vid::VendorExt;
 use self::assoc::SecAssoc;
 
@@ -13,7 +12,7 @@ mod assoc;
 
 
 #[deriving(Show)]
-enum PayloadKind
+pub enum PayloadKind
 {
     None,
 
@@ -64,12 +63,9 @@ fn parse_packet(dat: &[u8]) -> ParseResult<()>
 
     println!("{}", head);
 
-    let mut rem = head.Payload;
-    let mut ty  = head.NextPayload;
-
-    while rem.len() > 0
+    for x in head.iter()
     {
-        let (payl,tmp) = try!(Payload::parse(rem));
+        let (ty,payl) = try!(x);
 
         println!("{}", payl);
 
@@ -88,12 +84,9 @@ fn parse_packet(dat: &[u8]) -> ParseResult<()>
 
             _ => { print!("{}", hex_dump(payl.Payload)); }
         }
-
-        rem = tmp;
-        ty  = payl.NextPayload;
     }
 
-    Ok(((),rem))
+    Ok(((),dat[head.Length as uint..]))
 }
 
 pub fn dump_packet(dat: &[u8])
