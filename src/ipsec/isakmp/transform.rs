@@ -1,6 +1,7 @@
 use std::fmt;
 use util::{ParseResult};
 use util::PacketError::{TruncatedPacket,UnsupportedPacket};
+use super::attr::{AttributeIter};
 
 
 const KEY_IKE: u8 = 0x01;
@@ -30,7 +31,7 @@ impl<'a> Transform<'a>
         let tran = Transform {
             TransformNum: dat[0],
             TransformId: dat[1],
-            Payload: dat[2..],
+            Payload: dat[4..],
             };
 
         if tran.TransformId != KEY_IKE
@@ -39,6 +40,11 @@ impl<'a> Transform<'a>
         }
 
         Ok((tran, dat[Transform::HeaderSize()..]))
+    }
+
+    pub fn iter(&self) -> AttributeIter<'a>
+    {
+        AttributeIter { raw: self.Payload }
     }
 }
 

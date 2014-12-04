@@ -13,6 +13,7 @@ mod vid;
 mod assoc;
 mod proposal;
 mod transform;
+mod attr;
 
 
 #[deriving(Show)]
@@ -66,7 +67,12 @@ fn parse_transform(dat: &[u8]) -> ParseResult<()>
     let (tran,_) = try!(Transform::parse(dat));
     println!("{}", tran);
 
-    print!("{}", hex_dump(tran.Payload));
+    for x in tran.iter()
+    {
+        let attr = try!(x);
+
+        println!("{}", attr);
+    }
 
     Ok(((),dat[dat.len()..]))
 }
