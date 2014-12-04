@@ -64,6 +64,10 @@ impl<'a> fmt::Show for Proposal<'a>
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {
         try!(write!(f, "ISAKMP::Proposal"));
+        try!(write!(f, " ProposalNum[{}]", self.ProposalNum));
+        try!(write!(f, " ProtocolId[{}]", self.ProtocolId));
+        try!(write!(f, " SpiSize[{}]", self.SpiSize));
+        try!(write!(f, " NumTransform[{}]", self.NumTransform));
 
         Ok(())
     }

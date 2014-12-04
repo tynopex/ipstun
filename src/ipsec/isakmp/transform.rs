@@ -48,6 +48,8 @@ impl<'a> fmt::Show for Transform<'a>
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {
         try!(write!(f, "ISAKMP::Transform"));
+        try!(write!(f, " TransformNum[{}]", self.TransformNum));
+        try!(write!(f, " TransformId[{}]", self.TransformId));
 
         Ok(())
     }
