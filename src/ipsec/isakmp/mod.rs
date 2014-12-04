@@ -1,12 +1,12 @@
 #![allow(non_snake_case)]
 
 use util::{hex_dump,ParseResult};
-use self::header::Header;
+use self::packet::Packet;
 use self::payload::Payload;
 use self::vid::VendorExt;
 use self::assoc::SecAssoc;
 
-mod header;
+mod packet;
 mod payload;
 mod vid;
 mod assoc;
@@ -60,11 +60,11 @@ fn payl_kind(ty: uint) -> PayloadKind
 
 fn parse_packet(dat: &[u8]) -> ParseResult<()>
 {
-    let (head,tmp) = try!(Header::parse(dat));
+    let (head,_) = try!(Packet::parse(dat));
 
     println!("{}", head);
 
-    let mut rem = tmp;
+    let mut rem = head.Payload;
     let mut ty  = head.NextPayload;
 
     while rem.len() > 0
