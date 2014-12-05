@@ -44,7 +44,7 @@ impl<'a> VendorExt<'a>
             _ => VendorExt::Unknown(dat),
         };
 
-        Ok((vid,dat[dat.len()..]))
+        Ok(vid)
     }
 }
 

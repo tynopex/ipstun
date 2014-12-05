@@ -51,7 +51,7 @@ impl<'a> Payload<'a>
             Payload: dat[Payload::Size()..len],
             };
 
-        Ok((payload, dat[len..]))
+        Ok(payload)
     }
 }
 
@@ -78,11 +78,11 @@ impl<'a> iter::Iterator<PayloadIterResult<'a>> for PayloadIter<'a>
             match Payload::parse(self.raw)
             {
                 Err(e) => Some(Err(e)),
-                Ok((payl,rem)) => {
+                Ok(payl) => {
                     let ty = self.next_type;
 
                     self.next_type = payl.NextPayload;
-                    self.raw = rem;
+                    self.raw = self.raw[payl.Length..];
 
                     Some(Ok((ty,payl)))
                     },

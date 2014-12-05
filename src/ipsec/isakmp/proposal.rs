@@ -49,7 +49,7 @@ impl<'a> Proposal<'a>
             return Err(UnsupportedPacket);
         }
 
-        Ok((prop, dat[Proposal::HeaderSize()..]))
+        Ok(prop)
     }
 
     pub fn iter(&self) -> PayloadIter<'a>

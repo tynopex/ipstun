@@ -64,7 +64,7 @@ fn payl_kind(ty: uint) -> PayloadKind
 
 fn parse_transform(dat: &[u8]) -> ParseResult<()>
 {
-    let (tran,_) = try!(Transform::parse(dat));
+    let tran = try!(Transform::parse(dat));
     println!("{}", tran);
 
     for x in tran.iter()
@@ -74,13 +74,13 @@ fn parse_transform(dat: &[u8]) -> ParseResult<()>
         println!("{}", attr);
     }
 
-    Ok(((),dat[dat.len()..]))
+    Ok(())
 }
 
 
 fn parse_proposal(dat: &[u8]) -> ParseResult<()>
 {
-    let (prop,_) = try!(Proposal::parse(dat));
+    let prop = try!(Proposal::parse(dat));
     println!("{}", prop);
 
     for x in prop.iter()
@@ -96,13 +96,13 @@ fn parse_proposal(dat: &[u8]) -> ParseResult<()>
         }
     }
 
-    Ok(((),dat[dat.len()..]))
+    Ok(())
 }
 
 
 fn parse_assoc(dat: &[u8]) -> ParseResult<()>
 {
-    let (sa,_) = try!(SecAssoc::parse(dat));
+    let sa = try!(SecAssoc::parse(dat));
     println!("{}", sa);
 
     for x in sa.iter()
@@ -118,23 +118,23 @@ fn parse_assoc(dat: &[u8]) -> ParseResult<()>
         }
     }
 
-    Ok(((),dat[dat.len()..]))
+    Ok(())
 }
 
 
 fn parse_vid(dat: &[u8]) -> ParseResult<()>
 {
-    let (vid,_) = try!(VendorExt::parse(dat));
+    let vid = try!(VendorExt::parse(dat));
 
     println!("{}", vid);
 
-    Ok(((),dat[dat.len()..]))
+    Ok(())
 }
 
 
 fn parse_packet(dat: &[u8]) -> ParseResult<()>
 {
-    let (head,_) = try!(Packet::parse(dat));
+    let head = try!(Packet::parse(dat));
 
     println!("{}", head);
 
@@ -152,14 +152,14 @@ fn parse_packet(dat: &[u8]) -> ParseResult<()>
         }
     }
 
-    Ok(((),dat[dat.len()..]))
+    Ok(())
 }
 
 pub fn dump_packet(dat: &[u8])
 {
     match parse_packet(dat)
     {
-        Ok((_,dat)) => print!("{}", hex_dump(dat)),
-        Err(_) => println!("Error"),
+        Ok(()) => (),
+        Err(e) => println!("ParseError({})", e),
     }
 }

@@ -39,7 +39,7 @@ impl<'a> Transform<'a>
             return Err(UnsupportedPacket);
         }
 
-        Ok((tran, dat[Transform::HeaderSize()..]))
+        Ok(tran)
     }
 
     pub fn iter(&self) -> AttributeIter<'a>

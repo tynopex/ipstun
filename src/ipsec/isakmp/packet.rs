@@ -87,7 +87,7 @@ impl<'a> Packet<'a>
             return Err(IllegalPacket);
         }
 
-        Ok((header,header.Payload))
+        Ok(header)
     }
 
     pub fn flagEnc (&self) -> bool { (self.Flags & 0x01) != 0 }

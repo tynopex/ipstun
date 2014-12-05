@@ -20,7 +20,7 @@ pub type AttributeIterResult<'a> = Result<Attribute<'a>, PacketError>;
 
 impl<'a> Attribute<'a>
 {
-    pub fn parse<'a>(dat: &'a [u8]) -> ParseResult<'a, Attribute>
+    pub fn parse<'a>(dat: &'a [u8]) -> ParseResult<'a, (Attribute, &'a [u8])>
     {
         if dat.len() < 4
         {
@@ -28,33 +28,23 @@ impl<'a> Attribute<'a>
         }
 
         let flags = get_u16(dat[0..]);
-        let key = flags & 0x7FFF;
 
-        if (flags & 0x8000) == 0
+        let (hlen,len) = match flags & 0x8000 {
+            0 => (4, 4 + get_u16(dat[2..]) as uint),
+            _ => (2, 4),
+            };
+
+        if dat.len() < len
         {
-            let len = (4 + get_u16(dat[2..])) as uint;
-
-            if dat.len() < len
-            {
-                return Err(TruncatedPacket);
-            }
-
-            let attr = Attribute {
-                key: key,
-                val: dat[4..len],
-                };
-
-            Ok((attr,dat[len..]))
+            return Err(TruncatedPacket);
         }
-        else
-        {
-            let attr = Attribute {
-                key: key,
-                val: dat[2..4],
-                };
 
-            Ok((attr,dat[4..]))
-        }
+        let attr = Attribute {
+            key: flags & 0x7FFF,
+            val: dat[hlen..len],
+            };
+
+        Ok((attr,dat[len..]))
     }
 }
 

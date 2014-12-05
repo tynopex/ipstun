@@ -100,6 +100,7 @@ pub fn get_u64(raw: &[u8]) -> u64
 }
 
 
+#[deriving(Show)]
 pub enum PacketError
 {
     InvalidPacket,
@@ -108,4 +109,4 @@ pub enum PacketError
     UnsupportedPacket,
 }
 
-pub type ParseResult<'a, T> = Result<(T, &'a [u8]), PacketError>;
+pub type ParseResult<'a, T> = Result<T, PacketError>;

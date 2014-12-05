@@ -48,7 +48,7 @@ impl<'a> SecAssoc<'a>
             return Err(UnsupportedPacket);
         }
 
-        Ok((sa, dat[SecAssoc::HeaderSize()..]))
+        Ok(sa)
     }
 
     pub fn iter(&self) -> PayloadIter<'a>
