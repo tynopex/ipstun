@@ -1,12 +1,14 @@
 #![allow(non_snake_case)]
 
-use util::{hex_dump,ParseResult};
 use self::packet::Packet;
+use self::payload::Payload;
 use self::vid::VendorExt;
 use self::assoc::SecAssoc;
 use self::proposal::Proposal;
 use self::transform::Transform;
+use self::attr::Attribute;
 
+mod visit;
 mod packet;
 mod payload;
 mod vid;
@@ -62,102 +64,24 @@ fn payl_kind(ty: uint) -> PayloadKind
 }
 
 
-fn parse_transform(dat: &[u8]) -> ParseResult<()>
+struct DumpPacketVisitor;
+
+impl visit::PacketVisitor for DumpPacketVisitor
 {
-    let tran = try!(Transform::parse(dat));
-    println!("{}", tran);
-
-    for x in tran.iter()
-    {
-        let attr = try!(x);
-
-        println!("{}", attr);
-    }
-
-    Ok(())
-}
-
-
-fn parse_proposal(dat: &[u8]) -> ParseResult<()>
-{
-    let prop = try!(Proposal::parse(dat));
-    println!("{}", prop);
-
-    for x in prop.iter()
-    {
-        let (ty,payl) = try!(x);
-
-        println!("{}", payl);
-
-        match ty
-        {
-            PayloadKind::T => { try!(parse_transform(payl.Payload)); }
-            _ => { print!("{}", hex_dump(payl.Payload)); }
-        }
-    }
-
-    Ok(())
-}
-
-
-fn parse_assoc(dat: &[u8]) -> ParseResult<()>
-{
-    let sa = try!(SecAssoc::parse(dat));
-    println!("{}", sa);
-
-    for x in sa.iter()
-    {
-        let (ty,payl) = try!(x);
-
-        println!("{}", payl);
-
-        match ty
-        {
-            PayloadKind::P => { try!(parse_proposal(payl.Payload)); }
-            _ => { print!("{}", hex_dump(payl.Payload)); }
-        }
-    }
-
-    Ok(())
-}
-
-
-fn parse_vid(dat: &[u8]) -> ParseResult<()>
-{
-    let vid = try!(VendorExt::parse(dat));
-
-    println!("{}", vid);
-
-    Ok(())
-}
-
-
-fn parse_packet(dat: &[u8]) -> ParseResult<()>
-{
-    let head = try!(Packet::parse(dat));
-
-    println!("{}", head);
-
-    for x in head.iter()
-    {
-        let (ty,payl) = try!(x);
-
-        println!("{}", payl);
-
-        match ty
-        {
-            PayloadKind::SA => { try!(parse_assoc(payl.Payload)); }
-            PayloadKind::VID => { try!(parse_vid(payl.Payload)); }
-            _ => { print!("{}", hex_dump(payl.Payload)); }
-        }
-    }
-
-    Ok(())
+    fn header(&self, x: Packet) { println!("{}", x); }
+    fn payload(&self, _: PayloadKind, _: Payload) { }
+    fn vendor_ext(&self, x: VendorExt) { println!(" {}", x); }
+    fn sec_assoc(&self, x: SecAssoc) { println!(" {}", x); }
+    fn proposal(&self, x: Proposal) { println!("  {}", x); }
+    fn transform(&self, x: Transform) { println!("    {}", x); }
+    fn attribute(&self, x: Attribute) { println!("     {}", x); }
 }
 
 pub fn dump_packet(dat: &[u8])
 {
-    match parse_packet(dat)
+    let dump = DumpPacketVisitor;
+
+    match visit::parse(&dump, dat)
     {
         Ok(()) => (),
         Err(e) => println!("ParseError({})", e),
