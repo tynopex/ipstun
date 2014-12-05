@@ -4,6 +4,11 @@
 mod ipsec;
 mod util;
 
+mod crypto
+{
+    mod md5;
+}
+
 
 const TEST_PKT : &'static [u8] = include_bin!("test_pkt.bin");
 
