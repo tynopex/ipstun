@@ -22,7 +22,7 @@ impl<'a> SecAssoc<'a>
 {
     pub fn HeaderSize() -> uint { 8 }
 
-    pub fn parse<'a>(dat: &'a [u8]) -> ParseResult<'a, SecAssoc>
+    pub fn parse(dat: &[u8]) -> ParseResult<SecAssoc>
     {
         // Check size
         if dat.len() < SecAssoc::HeaderSize()

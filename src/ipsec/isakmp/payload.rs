@@ -26,7 +26,7 @@ impl<'a> Payload<'a>
 {
     pub fn Size() -> uint { 4 }
 
-    pub fn parse<'a>(dat: &'a [u8]) -> ParseResult<'a, Payload>
+    pub fn parse(dat: &[u8]) -> ParseResult<Payload>
     {
         if dat.len() < Payload::Size()
         {

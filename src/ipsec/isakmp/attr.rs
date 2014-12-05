@@ -20,7 +20,7 @@ pub type AttributeIterResult<'a> = Result<Attribute<'a>, PacketError>;
 
 impl<'a> Attribute<'a>
 {
-    pub fn parse<'a>(dat: &'a [u8]) -> ParseResult<'a, (Attribute, &'a [u8])>
+    pub fn parse(dat: &[u8]) -> ParseResult<(Attribute, &[u8])>
     {
         if dat.len() < 4
         {

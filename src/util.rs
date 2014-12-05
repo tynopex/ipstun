@@ -109,4 +109,4 @@ pub enum PacketError
     UnsupportedPacket,
 }
 
-pub type ParseResult<'a, T> = Result<T, PacketError>;
+pub type ParseResult<T> = Result<T, PacketError>;

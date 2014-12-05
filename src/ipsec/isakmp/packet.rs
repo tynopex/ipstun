@@ -37,7 +37,7 @@ impl<'a> Packet<'a>
 {
     pub fn HeaderSize() -> uint { 28 }
 
-    pub fn parse<'a>(dat: &'a [u8]) -> ParseResult<Packet>
+    pub fn parse(dat: &[u8]) -> ParseResult<Packet>
     {
         if dat.len() < Packet::HeaderSize()
         {

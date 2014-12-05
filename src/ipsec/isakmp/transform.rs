@@ -20,7 +20,7 @@ impl<'a> Transform<'a>
 {
     pub fn HeaderSize() -> uint { 2 }
 
-    pub fn parse<'a>(dat: &'a [u8]) -> ParseResult<'a, Transform>
+    pub fn parse(dat: &[u8]) -> ParseResult<Transform>
     {
         // Check size
         if dat.len() < Transform::HeaderSize()
