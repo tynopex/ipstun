@@ -39,11 +39,13 @@ const C_SIN: [u32,..64] =
 ];
 
 #[allow(unused_parens)]
-fn get_blk<'a>(raw: &'a [u8], blk: &'a mut [u32], i: uint, len: uint, rem: uint, nbl: uint)
+fn get_blk(raw: &[u8], i: uint, len: uint, rem: uint, nbl: uint) -> [u32,..16]
 {
     let blen = ( len * 8 );
     let brem = ( rem * 8 );
     let base = ( i * 64 );
+
+    let mut blk: [u32,..16] = unsafe { mem::uninitialized() };
 
     for j in iter::range_step::<uint>(0, 64, 4)
     {
@@ -68,10 +70,12 @@ fn get_blk<'a>(raw: &'a [u8], blk: &'a mut [u32], i: uint, len: uint, rem: uint,
         blk[14] = ( blen as u64       ) as u32;
         blk[15] = ( blen as u64 >> 32 ) as u32;
     }
+
+    blk
 }
 
 #[allow(non_snake_case)]
-fn XX<'a>(a: u32, b: u32, c: u32, d: u32, i: uint, X: &'a mut [u32]) -> u32
+fn XX(a: u32, b: u32, c: u32, d: u32, i: uint, X: &[u32]) -> u32
 {
     // b + ( ( a + FN(b,c,d) + X[k] + T[i] ) <<< s )
 
@@ -91,11 +95,11 @@ fn XX<'a>(a: u32, b: u32, c: u32, d: u32, i: uint, X: &'a mut [u32]) -> u32
     let xx: u32 = ( xx << s ) + ( xx >> ( 32 - s ) );
     let xx: u32 = b + xx;
 
-    return xx;
+    xx
 }
 
 #[allow(non_snake_case)]
-pub fn hash<'a>(raw: &'a [u8], md5: &'a mut [u8])
+pub fn hash(raw: &[u8]) -> [u8,..16]
 {
     let len = raw.len();
 
@@ -103,12 +107,11 @@ pub fn hash<'a>(raw: &'a [u8], md5: &'a mut [u8])
     let pad = if rem < 56 { 56 - rem } else { 120 - rem };
     let nbl = ( len + pad + 8 ) / 64;
 
-    let mut blk: [u32,..16] = unsafe { mem::uninitialized() };
     let mut ctx: [u32,..4] = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476];
 
     for i in iter::range(0, nbl)
     {
-        get_blk( raw, &mut blk, i, len, rem, nbl );
+        let blk = get_blk( raw, i, len, rem, nbl );
 
         let mut A: u32 = ctx[0];
         let mut B: u32 = ctx[1];
@@ -117,10 +120,10 @@ pub fn hash<'a>(raw: &'a [u8], md5: &'a mut [u8])
 
         for j in iter::range_step(0, 64, 4)
         {
-            A = XX( A, B, C, D, j+0, &mut blk );
-            D = XX( D, A, B, C, j+1, &mut blk );
-            C = XX( C, D, A, B, j+2, &mut blk );
-            B = XX( B, C, D, A, j+3, &mut blk );
+            A = XX( A, B, C, D, j+0, &blk );
+            D = XX( D, A, B, C, j+1, &blk );
+            C = XX( C, D, A, B, j+2, &blk );
+            B = XX( B, C, D, A, j+3, &blk );
         }
 
         ctx[0] += A;
@@ -129,6 +132,8 @@ pub fn hash<'a>(raw: &'a [u8], md5: &'a mut [u8])
         ctx[3] += D;
     }
 
+    let mut md5: [u8,..16] = unsafe { mem::uninitialized() };
+
     for j in iter::range(0, 4)
     {
         for i in iter::range(0, 4)
@@ -136,6 +141,8 @@ pub fn hash<'a>(raw: &'a [u8], md5: &'a mut [u8])
             md5[i + j*4] = ( ctx[j] >> (8 * i) ) as u8;
         }
     }
+
+    md5
 }
 
 
@@ -152,8 +159,7 @@ mod tests
     {
         use self::serialize::hex::ToHex;
 
-        let mut hash: [u8,..16] = unsafe { mem::uninitialized() };
-        super::hash( msg.as_bytes(), &mut hash );
+        let hash = super::hash( msg.as_bytes() );
 
         hash.to_hex()
     }
