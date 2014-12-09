@@ -494,4 +494,93 @@ mod test
 
         assert_eq!(x as u8, C_RCON[0]);
     }
+
+    fn gfm(_a: u8, _b: u8) -> u8
+    {
+        let poly: uint = 0x11B;   // AES GF(2^8) Polynomial
+        let high: uint = 0x100;
+
+        let mut a: uint = _a as uint;
+        let mut b: uint = _b as uint;
+        let mut r: uint = 0x00;
+
+        while a != 0
+        {
+            if a & 1 != 0
+            {
+                r ^= b;
+            }
+
+            a >>= 1;
+            b <<= 1;
+
+            if b & high != 0
+            {
+                b ^= poly;
+            }
+        }
+
+        r as u8
+    }
+
+    fn gf_inv(x: u8) -> u8
+    {
+        if x == 0
+        {
+            0
+        }
+        else
+        {
+            match range::<uint>(0,256).find(|&i| gfm(x, i as u8) == 0x01)
+            {
+                Some(v) => v as u8,
+                None => panic!("Unable to determine GF inverse"),
+            }
+        }
+    }
+
+    #[test]
+    fn test_gfm()
+    {
+        use super::{C_GFM_2,C_GFM_3,C_GFM_9,C_GFM_11,C_GFM_13,C_GFM_14};
+
+        for i in range(0,256)
+        {
+            assert_eq!(gfm(i as u8, 2), C_GFM_2 [i]);
+            assert_eq!(gfm(i as u8, 3), C_GFM_3 [i]);
+            assert_eq!(gfm(i as u8, 9), C_GFM_9 [i]);
+            assert_eq!(gfm(i as u8,11), C_GFM_11[i]);
+            assert_eq!(gfm(i as u8,13), C_GFM_13[i]);
+            assert_eq!(gfm(i as u8,14), C_GFM_14[i]);
+        }
+    }
+
+    #[test]
+    fn test_sbox()
+    {
+        use super::{C_SBOX,C_SBOX_INV};
+
+        for i in range(0,256)
+        {
+            let t = gf_inv(i as u8);
+
+            let mut s: u8 = t;
+            let mut x: u8 = t;
+
+            for _ in range::<uint>(0,4)
+            {
+                s = (s << 1) + (s >> 7);
+                x ^= s;
+            }
+
+            x ^= 0x63;
+
+            assert_eq!(C_SBOX[i], x);
+        }
+
+        for i in range(0,256)
+        {
+            assert_eq!(C_SBOX_INV[C_SBOX[i] as uint], i as u8);
+        }
+    }
 }
