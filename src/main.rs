@@ -7,6 +7,7 @@ mod util;
 mod crypto
 {
     mod md5;
+    mod aes;
 }
 
 
