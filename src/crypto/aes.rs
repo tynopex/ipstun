@@ -2,6 +2,10 @@ use std::iter;
 use std::mem;
 
 
+const NROUND: uint = 10;
+
+type KeySchedule = [[u8,..16],..NROUND + 1];
+
 const C_RCON: [u8,..51] =
 [
     0x8d,0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80,0x1b,0x36,0x6c,0xd8,0xab,0x4d,0x9a,
@@ -232,6 +236,20 @@ fn key_schedule(ctx: [u8,..16], i: uint) -> [u8,..16]
     out
 }
 
+fn key_schedule_v(k: [u8,..16]) -> KeySchedule
+{
+    let mut kv: KeySchedule = unsafe { mem::uninitialized() };
+
+    kv[0] = k;
+
+    for i in range(1,1+NROUND)
+    {
+        kv[i] = key_schedule(kv[i-1], i);
+    }
+
+    kv
+}
+
 fn add_round_key(x: [u8,..16], k: [u8,..16]) -> [u8,..16]
 {
     let mut o: [u8,..16] = unsafe { mem::uninitialized() };
@@ -333,14 +351,13 @@ fn mix_columns_inv(x: [u8,..16]) -> [u8,..16]
     o
 }
 
-pub fn enc_block(d: [u8,..16], k: [u8,..16]) -> [u8,..16]
+fn enc_block(d: [u8,..16], kv: KeySchedule) -> [u8,..16]
 {
     let mut st = d;
-    let mut ks = k;
 
-    st = add_round_key(st, ks);
+    st = add_round_key(st, kv[0]);
 
-    for i in range(1,11)
+    for i in range(1,1+NROUND)
     {
         st = sub_bytes(st);
         st = shift_rows(st);
@@ -350,26 +367,17 @@ pub fn enc_block(d: [u8,..16], k: [u8,..16]) -> [u8,..16]
             st = mix_columns(st);
         }
 
-        ks = key_schedule(ks, i);
-        st = add_round_key(st, ks);
+        st = add_round_key(st, kv[i]);
     }
 
     st
 }
 
-pub fn dec_block(d: [u8,..16], k: [u8,..16]) -> [u8,..16]
+fn dec_block(d: [u8,..16], kv: KeySchedule) -> [u8,..16]
 {
     let mut st = d;
-    let mut kv: [[u8,..16],..11] = unsafe { mem::uninitialized() };
 
-    kv[0] = k;
-
-    for i in range(1,11)
-    {
-        kv[i] = key_schedule(kv[i-1], i);
-    }
-
-    for i in range(1,11).rev()
+    for i in range(1,1+NROUND).rev()
     {
         st = add_round_key(st, kv[i]);
 
@@ -387,12 +395,27 @@ pub fn dec_block(d: [u8,..16], k: [u8,..16]) -> [u8,..16]
     st
 }
 
+pub fn enc_ecb(d: [u8,..16], k: [u8,..16]) -> [u8,..16]
+{
+    let kv = key_schedule_v(k);
+
+    enc_block(d, kv)
+}
+
+pub fn dec_ecb(d: [u8,..16], k: [u8,..16]) -> [u8,..16]
+{
+    let kv = key_schedule_v(k);
+
+    dec_block(d, kv)
+}
+
 
 mod test
 {
     extern crate serialize;
 
     use std::mem;
+    use super::{NROUND};
 
 
     fn fr_str(s: &str) -> [u8,..16]
@@ -410,7 +433,7 @@ mod test
         t
     }
 
-    const TEST_SCHED: [&'static str,..11] =
+    const TEST_SCHED: [&'static str,..1+NROUND] =
     [
         "6920e299a5202a6d656e636869746f2a",
         "fa8807605fa82d0d3ac64e6553b2214f",
@@ -430,7 +453,7 @@ mod test
     {
         use super::{key_schedule};
 
-        for i in range(1,11)
+        for i in range(1,1+NROUND)
         {
             let ki = fr_str(TEST_SCHED[i-1]);
             let ko = fr_str(TEST_SCHED[i]);
@@ -442,32 +465,32 @@ mod test
     #[test]
     fn test_enc_ecb()
     {
-        use super::{enc_block};
+        use super::{enc_ecb};
 
         let kk = fr_str("2b7e151628aed2a6abf7158809cf4f3c");
         let pt = fr_str("6bc1bee22e409f96e93d7e117393172a");
         let ct = fr_str("3ad77bb40d7a3660a89ecaf32466ef97");
 
-        assert_eq!(enc_block(pt, kk), ct);
+        assert_eq!(enc_ecb(pt, kk), ct);
     }
 
     #[test]
     fn test_dec_ecb()
     {
-        use super::{dec_block};
+        use super::{dec_ecb};
 
         let kk = fr_str("2b7e151628aed2a6abf7158809cf4f3c");
         let ct = fr_str("3ad77bb40d7a3660a89ecaf32466ef97");
         let pt = fr_str("6bc1bee22e409f96e93d7e117393172a");
 
-        assert_eq!(dec_block(ct, kk), pt);
+        assert_eq!(dec_ecb(ct, kk), pt);
 
 
         let kk = fr_str("000102030405060708090a0b0c0d0e0f");
         let ct = fr_str("69c4e0d86a7b0430d8cdb78070b4c55a");
         let pt = fr_str("00112233445566778899aabbccddeeff");
 
-        assert_eq!(dec_block(ct, kk), pt);
+        assert_eq!(dec_ecb(ct, kk), pt);
     }
 
     #[test]
