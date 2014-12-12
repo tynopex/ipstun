@@ -493,36 +493,12 @@ mod test
         assert_eq!(dec_ecb(ct, kk), pt);
     }
 
-    #[test]
-    fn test_rcon()
-    {
-        use super::{C_RCON};
 
-        let poly: uint = 0x11B;   // AES GF(2^8) Polynomial
-        let high: uint = 0x100;
-
-        let mut x: uint = 0x001;
-
-        for &val in C_RCON.iter().skip(1)
-        {
-            assert_eq!(x as u8, val);
-
-            x <<= 1;
-
-            if x & high != 0
-            {
-                x ^= poly;
-            }
-        }
-
-        assert_eq!(x as u8, C_RCON[0]);
-    }
+    const GF_POLY: uint = 0x11b;    // AES GF(2^8) Polynomial
+    const GF_HIGH: uint = 0x100;
 
     fn gfm(_a: u8, _b: u8) -> u8
     {
-        let poly: uint = 0x11B;   // AES GF(2^8) Polynomial
-        let high: uint = 0x100;
-
         let mut a: uint = _a as uint;
         let mut b: uint = _b as uint;
         let mut r: uint = 0x00;
@@ -537,9 +513,9 @@ mod test
             a >>= 1;
             b <<= 1;
 
-            if b & high != 0
+            if b & GF_HIGH != 0
             {
-                b ^= poly;
+                b ^= GF_POLY;
             }
         }
 
@@ -575,32 +551,41 @@ mod test
 
     fn gf_inv(x: u8) -> u8
     {
-        let poly: uint = 0x11B;   // AES GF(2^8) Polynomial
-        let high: uint = 0x100;
+        let mut rr: uint = GF_POLY;
+        let mut r:  uint = x as uint;
 
-        let mut rr: uint = poly;
-        let mut tt: uint = 0;
-
-        let mut r: uint = x as uint;
-        let mut t: uint = 1;
+        let mut tt: u8 = 0;
+        let mut t:  u8 = 1;
 
         while r != 0
         {
             let qr = gf_polydiv(rr, r);
-            let qn = qr.val0();
+            let qn = qr.val0() as u8;
             let rn = qr.val1();
-            let tn = tt ^ gfm(qn as u8, t as u8) as uint;
+            let tn = tt ^ gfm(qn, t);
 
             rr = r; r = rn;
             tt = t; t = tn;
         }
 
-        if tt & high != 0
+        tt
+    }
+
+    #[test]
+    fn test_rcon()
+    {
+        use super::{C_RCON};
+
+        let mut x: u8 = 0x01;
+
+        for &val in C_RCON.iter().skip(1)
         {
-            tt ^= poly;
+            assert_eq!(x, val);
+
+            x = gfm(x, 0x02);
         }
 
-        tt as u8
+        assert_eq!(x, C_RCON[0]);
     }
 
     #[test]
@@ -622,13 +607,16 @@ mod test
     #[test]
     fn test_gfdiv()
     {
-        assert_eq!(gf_polydiv(0x11B, 0x04), (0x46, 0x03));
-        assert_eq!(gf_inv(0x04), 0xCB);
+        assert_eq!(gf_polydiv(0x11b, 0x04), (0x46, 0x03));
+        assert_eq!(gf_inv(0x04), 0xcb);
     }
+
+    const SBOX_AFFINE: u8 = 0x63;
 
     #[test]
     fn test_sbox()
     {
+        use std::num::Int;
         use super::{C_SBOX,C_SBOX_INV};
 
         for i in range(0,256)
@@ -640,11 +628,11 @@ mod test
 
             for _ in range::<uint>(0,4)
             {
-                s = (s << 1) + (s >> 7);
+                s = s.rotate_left(1);
                 x ^= s;
             }
 
-            x ^= 0x63;
+            x ^= SBOX_AFFINE;
 
             assert_eq!(C_SBOX[i], x);
         }
