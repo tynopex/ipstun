@@ -546,20 +546,61 @@ mod test
         r as u8
     }
 
+    fn gf_polydiv(x: uint, d: uint) -> (uint, uint)
+    {
+        use std::num::Int;
+        use std::uint;
+
+        let mut q: uint = 0;
+        let mut r: uint = x;
+
+        let     db = uint::BITS - d.leading_zeros();
+        let mut rb = uint::BITS - r.leading_zeros();
+
+        while rb >= db
+        {
+            q <<= 1;
+
+            if r >> (rb - 1) != 0
+            {
+                q |= 1;
+                r ^= d << (rb - db);
+            }
+
+            rb -= 1;
+        }
+
+        (q, r)
+    }
+
     fn gf_inv(x: u8) -> u8
     {
-        if x == 0
+        let poly: uint = 0x11B;   // AES GF(2^8) Polynomial
+        let high: uint = 0x100;
+
+        let mut rr: uint = poly;
+        let mut tt: uint = 0;
+
+        let mut r: uint = x as uint;
+        let mut t: uint = 1;
+
+        while r != 0
         {
-            0
+            let qr = gf_polydiv(rr, r);
+            let qn = qr.val0();
+            let rn = qr.val1();
+            let tn = tt ^ gfm(qn as u8, t as u8) as uint;
+
+            rr = r; r = rn;
+            tt = t; t = tn;
         }
-        else
+
+        if tt & high != 0
         {
-            match range::<uint>(0,256).find(|&i| gfm(x, i as u8) == 0x01)
-            {
-                Some(v) => v as u8,
-                None => panic!("Unable to determine GF inverse"),
-            }
+            tt ^= poly;
         }
+
+        tt as u8
     }
 
     #[test]
@@ -576,6 +617,13 @@ mod test
             assert_eq!(gfm(i as u8,13), C_GFM_13[i]);
             assert_eq!(gfm(i as u8,14), C_GFM_14[i]);
         }
+    }
+
+    #[test]
+    fn test_gfdiv()
+    {
+        assert_eq!(gf_polydiv(0x11B, 0x04), (0x46, 0x03));
+        assert_eq!(gf_inv(0x04), 0xCB);
     }
 
     #[test]
