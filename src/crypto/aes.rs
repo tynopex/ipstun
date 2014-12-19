@@ -560,8 +560,8 @@ mod test
         while r != 0
         {
             let qr = gf_polydiv(rr, r);
-            let qn = qr.val0() as u8;
-            let rn = qr.val1();
+            let qn = qr.0 as u8;
+            let rn = qr.1;
             let tn = tt ^ gfm(qn, t);
 
             rr = r; r = rn;
