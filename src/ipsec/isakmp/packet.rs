@@ -5,7 +5,7 @@ use super::{PayloadKind,payl_kind};
 use super::payload::PayloadIter;
 
 
-#[deriving(Show)]
+#[deriving(Show,Copy)]
 enum ExchangeKind
 {
     NONE,
@@ -18,6 +18,7 @@ enum ExchangeKind
 }
 
 
+#[deriving(Copy)]
 pub struct Packet<'a>
 {
     pub InitiatorCookie: [u8,..8],

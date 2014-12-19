@@ -5,6 +5,7 @@ use util::PacketError::{TruncatedPacket,IllegalPacket};
 use super::{PayloadKind,payl_kind};
 
 
+#[deriving(Copy)]
 pub struct Payload<'a>
 {
     pub NextPayload: PayloadKind,

@@ -10,6 +10,7 @@ const DOI_IPSEC: u32 = 0x00000001;
 const SIT_IDENTITY_ONLY: u32 = 0x00000001;
 
 
+#[deriving(Copy)]
 pub struct SecAssoc<'a>
 {
     DOI: u32,

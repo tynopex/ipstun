@@ -18,7 +18,7 @@ mod transform;
 mod attr;
 
 
-#[deriving(Show)]
+#[deriving(Show,Copy)]
 pub enum PayloadKind
 {
     None,
