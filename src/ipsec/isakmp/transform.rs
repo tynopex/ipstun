@@ -7,7 +7,7 @@ use super::attr::{AttributeIter};
 const KEY_IKE: u8 = 0x01;
 
 
-#[deriving(Copy)]
+#[derive(Copy)]
 pub struct Transform<'a>
 {
     pub TransformNum: u8,

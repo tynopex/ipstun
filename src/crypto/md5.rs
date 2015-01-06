@@ -1,7 +1,7 @@
 use std::mem;
 use std::iter;
 
-const C_IDX: [uint,..64] =
+const C_IDX: [uint; 64] =
 [
     0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
     1,  6, 11,  0,  5, 10, 15,  4,  9, 14,  3,  8, 13,  2,  7, 12,
@@ -9,7 +9,7 @@ const C_IDX: [uint,..64] =
     0,  7, 14,  5, 12,  3, 10,  1,  8, 15,  6, 13,  4, 11,  2,  9,
 ];
 
-const C_ROT: [uint,..64] =
+const C_ROT: [uint; 64] =
 [
     7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,
     5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,
@@ -18,7 +18,7 @@ const C_ROT: [uint,..64] =
 ];
 
 // FLOOR( SIN( i + 1 ) * 2^32 )
-const C_SIN: [u32,..64] =
+const C_SIN: [u32; 64] =
 [
     0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
     0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
@@ -39,36 +39,36 @@ const C_SIN: [u32,..64] =
 ];
 
 #[allow(unused_parens)]
-fn get_blk(raw: &[u8], i: uint, len: uint, rem: uint, nbl: uint) -> [u32,..16]
+fn get_blk(raw: &[u8], i: uint, len: uint, rem: uint, nbl: uint) -> [u32; 16]
 {
     let blen = ( len * 8 );
     let brem = ( rem * 8 );
     let base = ( i * 64 );
 
-    let mut blk: [u32,..16] = unsafe { mem::uninitialized() };
+    let mut blk: [u32; 16] = unsafe { mem::uninitialized() };
 
     for j in iter::range_step::<uint>(0, 64, 4)
     {
         let jj = base + j;
         let mut x: u32 = 0;
 
-        if jj + 0 < len { x += ( raw[jj + 0] as u32       ); }
-        if jj + 1 < len { x += ( raw[jj + 1] as u32 <<  8 ); }
-        if jj + 2 < len { x += ( raw[jj + 2] as u32 << 16 ); }
-        if jj + 3 < len { x += ( raw[jj + 3] as u32 << 24 ); }
+        if jj + 0 < len { x += ( (raw[jj + 0] as u32)       ); }
+        if jj + 1 < len { x += ( (raw[jj + 1] as u32) <<  8 ); }
+        if jj + 2 < len { x += ( (raw[jj + 2] as u32) << 16 ); }
+        if jj + 3 < len { x += ( (raw[jj + 3] as u32) << 24 ); }
 
         blk[j / 4] = x;
     }
 
     if ( i == ( len / 64 ) )
     {
-        blk[brem / 32] += ( 0x80 as u32 << ( brem % 32 ) );
+        blk[brem / 32] += ( (0x80 as u32) << ( brem % 32 ) );
     }
 
     if ( i == ( nbl -  1 ) )
     {
-        blk[14] = ( blen as u64       ) as u32;
-        blk[15] = ( blen as u64 >> 32 ) as u32;
+        blk[14] = ( (blen as u64)       ) as u32;
+        blk[15] = ( (blen as u64) >> 32 ) as u32;
     }
 
     blk
@@ -99,7 +99,7 @@ fn XX(a: u32, b: u32, c: u32, d: u32, i: uint, X: &[u32]) -> u32
 }
 
 #[allow(non_snake_case)]
-pub fn hash(raw: &[u8]) -> [u8,..16]
+pub fn hash(raw: &[u8]) -> [u8; 16]
 {
     let len = raw.len();
 
@@ -107,7 +107,7 @@ pub fn hash(raw: &[u8]) -> [u8,..16]
     let pad = if rem < 56 { 56 - rem } else { 120 - rem };
     let nbl = ( len + pad + 8 ) / 64;
 
-    let mut ctx: [u32,..4] = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476];
+    let mut ctx: [u32; 4] = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476];
 
     for i in iter::range(0, nbl)
     {
@@ -132,7 +132,7 @@ pub fn hash(raw: &[u8]) -> [u8,..16]
         ctx[3] += D;
     }
 
-    let mut md5: [u8,..16] = unsafe { mem::uninitialized() };
+    let mut md5: [u8; 16] = unsafe { mem::uninitialized() };
 
     for j in iter::range(0, 4)
     {
@@ -182,7 +182,7 @@ mod tests
         use std::str::from_utf8_unchecked;
 
         // Random &str
-        let mut raw: [u8,..4096] = unsafe { mem::uninitialized() };
+        let mut raw: [u8; 4096] = unsafe { mem::uninitialized() };
         rand::task_rng().fill_bytes(&mut raw);
         let msg = unsafe { from_utf8_unchecked(&raw) };
 

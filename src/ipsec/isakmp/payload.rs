@@ -5,7 +5,7 @@ use util::PacketError::{TruncatedPacket,IllegalPacket};
 use super::{PayloadKind,payl_kind};
 
 
-#[deriving(Copy)]
+#[derive(Copy)]
 pub struct Payload<'a>
 {
     pub NextPayload: PayloadKind,
@@ -70,8 +70,10 @@ impl<'a> fmt::Show for Payload<'a>
 }
 
 
-impl<'a> iter::Iterator<PayloadIterResult<'a>> for PayloadIter<'a>
+impl<'a> iter::Iterator for PayloadIter<'a>
 {
+    type Item = PayloadIterResult<'a>;
+
     fn next(&mut self) -> Option<PayloadIterResult<'a>>
     {
         if self.raw.len() > 0

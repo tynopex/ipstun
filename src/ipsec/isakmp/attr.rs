@@ -62,8 +62,10 @@ impl<'a> fmt::Show for Attribute<'a>
 }
 
 
-impl<'a> iter::Iterator<AttributeIterResult<'a>> for AttributeIter<'a>
+impl<'a> iter::Iterator for AttributeIter<'a>
 {
+    type Item = AttributeIterResult<'a>;
+
     fn next(&mut self) -> Option<AttributeIterResult<'a>>
     {
         if self.raw.len() > 0

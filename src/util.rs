@@ -58,49 +58,49 @@ pub fn hex_dump_nospace(dat: &[u8]) -> HexDumpFmt
 }
 
 
-macro_rules! get_u8_N(
+macro_rules! get_u8_N{
     ($f:ident[$N:expr]) => (
-        pub fn $f(raw: &[u8]) -> [u8,..$N]
+        pub fn $f(raw: &[u8]) -> [u8; $N]
         {
-            let mut tmp: [u8,..$N] = unsafe { mem::uninitialized() };
+            let mut tmp: [u8; $N] = unsafe { mem::uninitialized() };
             slice::bytes::copy_memory(&mut tmp, raw[..$N]);
             tmp
         }
     )
-)
+}
 
-get_u8_N!(get_u8_4[4])
-get_u8_N!(get_u8_8[8])
-get_u8_N!(get_u8_16[16])
+get_u8_N!{get_u8_4[4]}
+get_u8_N!{get_u8_8[8]}
+get_u8_N!{get_u8_16[16]}
 
 pub fn get_u16(raw: &[u8]) -> u16
 {
-    ( raw[0] as u16 <<  8 ) +
-    ( raw[1] as u16       )
+    ( (raw[0] as u16) <<  8 ) +
+    ( (raw[1] as u16)       )
 }
 
 pub fn get_u32(raw: &[u8]) -> u32
 {
-    ( raw[0] as u32 << 24 ) +
-    ( raw[1] as u32 << 16 ) +
-    ( raw[2] as u32 <<  8 ) +
-    ( raw[3] as u32       )
+    ( (raw[0] as u32) << 24 ) +
+    ( (raw[1] as u32) << 16 ) +
+    ( (raw[2] as u32) <<  8 ) +
+    ( (raw[3] as u32)       )
 }
 
 pub fn get_u64(raw: &[u8]) -> u64
 {
-    ( raw[0] as u64 << 56 ) +
-    ( raw[1] as u64 << 48 ) +
-    ( raw[2] as u64 << 40 ) +
-    ( raw[3] as u64 << 32 ) +
-    ( raw[4] as u64 << 24 ) +
-    ( raw[5] as u64 << 16 ) +
-    ( raw[6] as u64 <<  8 ) +
-    ( raw[7] as u64       )
+    ( (raw[0] as u64) << 56 ) +
+    ( (raw[1] as u64) << 48 ) +
+    ( (raw[2] as u64) << 40 ) +
+    ( (raw[3] as u64) << 32 ) +
+    ( (raw[4] as u64) << 24 ) +
+    ( (raw[5] as u64) << 16 ) +
+    ( (raw[6] as u64) <<  8 ) +
+    ( (raw[7] as u64)       )
 }
 
 
-#[deriving(Show)]
+#[derive(Show)]
 pub enum PacketError
 {
     InvalidPacket,

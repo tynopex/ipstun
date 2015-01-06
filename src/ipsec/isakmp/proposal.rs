@@ -8,7 +8,7 @@ use super::payload::{PayloadIter};
 const PROTO_ISAKMP: u8 = 0x01;
 
 
-#[deriving(Copy)]
+#[derive(Copy)]
 pub struct Proposal<'a>
 {
     pub ProposalNum: u8,
