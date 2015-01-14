@@ -32,7 +32,7 @@ impl<'a> Transform<'a>
         let tran = Transform {
             TransformNum: dat[0],
             TransformId: dat[1],
-            Payload: dat[4..],
+            Payload: &dat[4..],
             };
 
         if tran.TransformId != KEY_IKE

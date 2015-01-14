@@ -68,13 +68,13 @@ struct DumpPacketVisitor;
 
 impl visit::PacketVisitor for DumpPacketVisitor
 {
-    fn header(&self, x: Packet) { println!("{}", x); }
+    fn header(&self, x: Packet) { println!("{:?}", x); }
     fn payload(&self, _: PayloadKind, _: Payload) { }
-    fn vendor_ext(&self, x: VendorExt) { println!(" {}", x); }
-    fn sec_assoc(&self, x: SecAssoc) { println!(" {}", x); }
-    fn proposal(&self, x: Proposal) { println!("  {}", x); }
-    fn transform(&self, x: Transform) { println!("    {}", x); }
-    fn attribute(&self, x: Attribute) { println!("     {}", x); }
+    fn vendor_ext(&self, x: VendorExt) { println!(" {:?}", x); }
+    fn sec_assoc(&self, x: SecAssoc) { println!(" {:?}", x); }
+    fn proposal(&self, x: Proposal) { println!("  {:?}", x); }
+    fn transform(&self, x: Transform) { println!("    {:?}", x); }
+    fn attribute(&self, x: Attribute) { println!("     {:?}", x); }
 }
 
 pub fn dump_packet(dat: &[u8])
@@ -84,6 +84,6 @@ pub fn dump_packet(dat: &[u8])
     match visit::parse(&dump, dat)
     {
         Ok(()) => (),
-        Err(e) => println!("ParseError({})", e),
+        Err(e) => println!("ParseError({:?})", e),
     }
 }

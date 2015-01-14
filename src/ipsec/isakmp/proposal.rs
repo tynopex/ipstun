@@ -37,7 +37,7 @@ impl<'a> Proposal<'a>
             ProtocolId: dat[1],
             SpiSize: dat[2],
             NumTransform: dat[3],
-            Payload: dat[4..],
+            Payload: &dat[4..],
             };
 
         if prop.SpiSize > 0

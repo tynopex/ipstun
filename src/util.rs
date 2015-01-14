@@ -14,7 +14,7 @@ struct HexDumpFmt<'a>
     whitespace: bool,
 }
 
-impl<'a> fmt::Show for HexDumpFmt<'a>
+impl<'a> fmt::String for HexDumpFmt<'a>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {
@@ -63,7 +63,7 @@ macro_rules! get_u8_N{
         pub fn $f(raw: &[u8]) -> [u8; $N]
         {
             let mut tmp: [u8; $N] = unsafe { mem::uninitialized() };
-            slice::bytes::copy_memory(&mut tmp, raw[..$N]);
+            slice::bytes::copy_memory(&mut tmp, &raw[..$N]);
             tmp
         }
     )

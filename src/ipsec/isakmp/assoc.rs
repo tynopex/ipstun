@@ -32,9 +32,9 @@ impl<'a> SecAssoc<'a>
         }
 
         let sa = SecAssoc {
-            DOI: get_u32(dat[0..]),
-            Situation: get_u32(dat[4..]),
-            Payload: dat[8..],
+            DOI: get_u32(&dat[0..]),
+            Situation: get_u32(&dat[4..]),
+            Payload: &dat[8..],
             };
 
         // Check IPSEC DOI

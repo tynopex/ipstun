@@ -27,10 +27,10 @@ impl<'a> Attribute<'a>
             return Err(TruncatedPacket);
         }
 
-        let flags = get_u16(dat[0..]);
+        let flags = get_u16(&dat[0..]);
 
         let (hlen,len) = match flags & 0x8000 {
-            0 => (4, 4 + get_u16(dat[2..]) as uint),
+            0 => (4, 4 + get_u16(&dat[2..]) as uint),
             _ => (2, 4),
             };
 
@@ -41,10 +41,10 @@ impl<'a> Attribute<'a>
 
         let attr = Attribute {
             key: flags & 0x7FFF,
-            val: dat[hlen..len],
+            val: &dat[hlen..len],
             };
 
-        Ok((attr,dat[len..]))
+        Ok((attr,&dat[len..]))
     }
 }
 

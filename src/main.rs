@@ -1,5 +1,5 @@
-#![feature(slicing_syntax,macro_rules,associated_types)]
-#![allow(dead_code)]
+#![feature(slicing_syntax,int_uint)]
+#![allow(dead_code,unstable)]
 
 mod ipsec;
 mod util;

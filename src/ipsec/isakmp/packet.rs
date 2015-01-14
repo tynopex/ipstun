@@ -56,15 +56,15 @@ impl<'a> Packet<'a>
             };
 
         let header = Packet {
-            InitiatorCookie: get_u8_8(dat[0..]),
-            ResponderCookie: get_u8_8(dat[8..]),
+            InitiatorCookie: get_u8_8(&dat[0..]),
+            ResponderCookie: get_u8_8(&dat[8..]),
             NextPayload: payl_kind(dat[16] as uint),
             Version: dat[17],
             ExchangeType: ex,
             Flags: dat[19],
-            MessageID: get_u8_4(dat[20..]),
-            Length: get_u32(dat[24..]),
-            Payload: dat[28..],
+            MessageID: get_u8_4(&dat[20..]),
+            Length: get_u32(&dat[24..]),
+            Payload: &dat[28..],
             };
 
         if header.Version != 0x10
@@ -109,9 +109,9 @@ impl<'a> fmt::Show for Packet<'a>
         try!(write!(f, "ISAKMP::Packet"));
         try!(write!(f, " ICookie[{}]", hex_dump_nospace(&self.InitiatorCookie)));
         try!(write!(f, " RCookie[{}]", hex_dump_nospace(&self.ResponderCookie)));
-        try!(write!(f, " Next[{}]", self.NextPayload));
+        try!(write!(f, " Next[{:?}]", self.NextPayload));
         try!(write!(f, " Ver[{}]", self.Version));
-        try!(write!(f, " Exch[{}]", self.ExchangeType));
+        try!(write!(f, " Exch[{:?}]", self.ExchangeType));
 
         try!(write!(f, " Flag["));
         if self.flagEnc()  { try!(write!(f, "E")); }

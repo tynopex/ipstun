@@ -34,7 +34,7 @@ impl<'a> Payload<'a>
             return Err(TruncatedPacket);
         }
 
-        let len = get_u16(dat[2..]) as uint;
+        let len = get_u16(&dat[2..]) as uint;
 
         if len < Payload::Size()
         {
@@ -49,7 +49,7 @@ impl<'a> Payload<'a>
         let payload = Payload {
             NextPayload: payl_kind(dat[0] as uint),
             Length: len,
-            Payload: dat[Payload::Size()..len],
+            Payload: &dat[Payload::Size()..len],
             };
 
         Ok(payload)
@@ -62,7 +62,7 @@ impl<'a> fmt::Show for Payload<'a>
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {
         try!(write!(f, "ISAKMP::Payload"));
-        try!(write!(f, " Next[{}]", self.NextPayload));
+        try!(write!(f, " Next[{:?}]", self.NextPayload));
         try!(write!(f, " Len[{}]", self.Length));
 
         Ok(())
@@ -85,7 +85,7 @@ impl<'a> iter::Iterator for PayloadIter<'a>
                     let ty = self.next_type;
 
                     self.next_type = payl.NextPayload;
-                    self.raw = self.raw[payl.Length..];
+                    self.raw = &self.raw[payl.Length..];
 
                     Some(Ok((ty,payl)))
                     },
