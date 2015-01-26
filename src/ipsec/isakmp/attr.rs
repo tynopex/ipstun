@@ -49,7 +49,7 @@ impl<'a> Attribute<'a>
 }
 
 
-impl<'a> fmt::Show for Attribute<'a>
+impl<'a> fmt::Debug for Attribute<'a>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {

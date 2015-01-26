@@ -60,7 +60,7 @@ impl<'a> Proposal<'a>
 }
 
 
-impl<'a> fmt::Show for Proposal<'a>
+impl<'a> fmt::Debug for Proposal<'a>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {

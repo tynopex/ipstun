@@ -50,7 +50,7 @@ impl<'a> Transform<'a>
 }
 
 
-impl<'a> fmt::Show for Transform<'a>
+impl<'a> fmt::Debug for Transform<'a>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {

@@ -49,7 +49,7 @@ impl<'a> VendorExt<'a>
 }
 
 
-impl<'a> fmt::Show for VendorExt<'a>
+impl<'a> fmt::Debug for VendorExt<'a>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {

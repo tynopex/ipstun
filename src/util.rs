@@ -14,7 +14,7 @@ struct HexDumpFmt<'a>
     whitespace: bool,
 }
 
-impl<'a> fmt::String for HexDumpFmt<'a>
+impl<'a> fmt::Display for HexDumpFmt<'a>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {
@@ -100,7 +100,7 @@ pub fn get_u64(raw: &[u8]) -> u64
 }
 
 
-#[derive(Show)]
+#[derive(Debug)]
 pub enum PacketError
 {
     InvalidPacket,

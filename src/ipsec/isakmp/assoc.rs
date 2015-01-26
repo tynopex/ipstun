@@ -59,7 +59,7 @@ impl<'a> SecAssoc<'a>
 }
 
 
-impl<'a> fmt::Show for SecAssoc<'a>
+impl<'a> fmt::Debug for SecAssoc<'a>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {

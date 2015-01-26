@@ -5,7 +5,7 @@ use super::{PayloadKind,payl_kind};
 use super::payload::PayloadIter;
 
 
-#[derive(Show,Copy)]
+#[derive(Debug,Copy)]
 enum ExchangeKind
 {
     NONE,
@@ -102,7 +102,7 @@ impl<'a> Packet<'a>
 }
 
 
-impl<'a> fmt::Show for Packet<'a>
+impl<'a> fmt::Debug for Packet<'a>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {

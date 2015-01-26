@@ -57,7 +57,7 @@ impl<'a> Payload<'a>
 }
 
 
-impl<'a> fmt::Show for Payload<'a>
+impl<'a> fmt::Debug for Payload<'a>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {
