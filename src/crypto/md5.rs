@@ -167,12 +167,12 @@ mod tests
     #[test]
     fn test_strings()
     {
-        assert_eq!("d41d8cd98f00b204e9800998ecf8427e", do_md5("")[]);
-        assert_eq!("0cc175b9c0f1b6a831c399e269772661", do_md5("a")[]);
-        assert_eq!("8a7319dbf6544a7422c9e25452580ea5", do_md5("abcdefghijklmno")[]);
-        assert_eq!("1d64dce239c4437b7736041db089e1b9", do_md5("abcdefghijklmnop")[]);
-        assert_eq!("9a8d9845a6b4d82dfcb2c2e35162c830", do_md5("abcdefghijklmnopq")[]);
-        assert_eq!("6d2286301265512f019781cc0ce7a39f", do_md5("abcdefghijklmnopqrstuvwxyz0123456789")[]);
+        assert_eq!("d41d8cd98f00b204e9800998ecf8427e", do_md5(""));
+        assert_eq!("0cc175b9c0f1b6a831c399e269772661", do_md5("a"));
+        assert_eq!("8a7319dbf6544a7422c9e25452580ea5", do_md5("abcdefghijklmno"));
+        assert_eq!("1d64dce239c4437b7736041db089e1b9", do_md5("abcdefghijklmnop"));
+        assert_eq!("9a8d9845a6b4d82dfcb2c2e35162c830", do_md5("abcdefghijklmnopq"));
+        assert_eq!("6d2286301265512f019781cc0ce7a39f", do_md5("abcdefghijklmnopqrstuvwxyz0123456789"));
     }
 
     #[bench]
@@ -183,7 +183,7 @@ mod tests
 
         // Random &str
         let mut raw: [u8; 4096] = unsafe { mem::uninitialized() };
-        rand::task_rng().fill_bytes(&mut raw);
+        rand::thread_rng().fill_bytes(&mut raw);
         let msg = unsafe { from_utf8_unchecked(&raw) };
 
         b.iter(|| do_md5(msg));
