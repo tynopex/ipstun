@@ -30,7 +30,7 @@ impl<'a> Attribute<'a>
         let flags = get_u16(&dat[0..]);
 
         let (hlen,len) = match flags & 0x8000 {
-            0 => (4, 4 + get_u16(&dat[2..]) as uint),
+            0 => (4, 4 + get_u16(&dat[2..]) as usize),
             _ => (2, 4),
             };
 

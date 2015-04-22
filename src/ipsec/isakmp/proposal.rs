@@ -8,7 +8,7 @@ use super::payload::{PayloadIter};
 const PROTO_ISAKMP: u8 = 0x01;
 
 
-#[derive(Copy)]
+#[derive(Clone,Copy)]
 pub struct Proposal<'a>
 {
     pub ProposalNum: u8,
@@ -22,7 +22,7 @@ pub struct Proposal<'a>
 
 impl<'a> Proposal<'a>
 {
-    pub fn HeaderSize() -> uint { 4 }
+    pub fn HeaderSize() -> usize { 4 }
 
     pub fn parse(dat: &[u8]) -> ParseResult<Proposal>
     {

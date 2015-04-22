@@ -18,7 +18,7 @@ mod transform;
 mod attr;
 
 
-#[derive(Show,Copy)]
+#[derive(Debug,Clone,Copy)]
 pub enum PayloadKind
 {
     None,
@@ -41,7 +41,7 @@ pub enum PayloadKind
 }
 
 
-fn payl_kind(ty: uint) -> PayloadKind
+fn payl_kind(ty: u32) -> PayloadKind
 {
     match ty
     {

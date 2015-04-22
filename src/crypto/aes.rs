@@ -1,8 +1,7 @@
-use std::iter;
 use std::mem;
 
 
-const NROUND: uint = 10;
+const NROUND: usize = 10;
 
 type KeySchedule = [[u8; 16]; NROUND + 1];
 
@@ -180,22 +179,22 @@ fn rotate(x: [u8; 4]) -> [u8; 4]
     [x[1],x[2],x[3],x[0]]
 }
 
-fn rcon(x: uint) -> u8
+fn rcon(x: usize) -> u8
 {
     C_RCON[x % C_RCON.len()]
 }
 
 fn sbox(x: u8) -> u8
 {
-    C_SBOX[x as uint]
+    C_SBOX[x as usize]
 }
 
 fn sbox_inv(x: u8) -> u8
 {
-    C_SBOX_INV[x as uint]
+    C_SBOX_INV[x as usize]
 }
 
-fn key_core(x: [u8; 4], i: uint) -> [u8; 4]
+fn key_core(x: [u8; 4], i: usize) -> [u8; 4]
 {
     let r = rotate(x);
 
@@ -207,7 +206,7 @@ fn key_core(x: [u8; 4], i: uint) -> [u8; 4]
     ]
 }
 
-fn key_schedule(ctx: [u8; 16], i: uint) -> [u8; 16]
+fn key_schedule(ctx: [u8; 16], i: usize) -> [u8; 16]
 {
     let t = [
         ctx[12],
@@ -225,7 +224,7 @@ fn key_schedule(ctx: [u8; 16], i: uint) -> [u8; 16]
     out[2] ^= t[2];
     out[3] ^= t[3];
 
-    for i in iter::range_step(0,12,4)
+    for i in (0..12).step_by(4)
     {
         out[i+4] ^= out[i+0];
         out[i+5] ^= out[i+1];
@@ -242,7 +241,7 @@ fn key_schedule_v(k: [u8; 16]) -> KeySchedule
 
     kv[0] = k;
 
-    for i in range(1,1+NROUND)
+    for i in 1..(1+NROUND)
     {
         kv[i] = key_schedule(kv[i-1], i);
     }
@@ -254,7 +253,7 @@ fn add_round_key(x: [u8; 16], k: [u8; 16]) -> [u8; 16]
 {
     let mut o: [u8; 16] = unsafe { mem::uninitialized() };
 
-    for i in range(0,16)
+    for i in 0..16
     {
         o[i] = x[i] ^ k[i];
     }
@@ -266,7 +265,7 @@ fn sub_bytes(x: [u8; 16]) -> [u8; 16]
 {
     let mut o: [u8; 16] = unsafe { mem::uninitialized() };
 
-    for i in range(0,16)
+    for i in 0..16
     {
         o[i] = sbox(x[i]);
     }
@@ -278,7 +277,7 @@ fn sub_bytes_inv(x: [u8; 16]) -> [u8; 16]
 {
     let mut o: [u8; 16] = unsafe { mem::uninitialized() };
 
-    for i in range(0,16)
+    for i in 0..16
     {
         o[i] = sbox_inv(x[i]);
     }
@@ -311,12 +310,12 @@ fn gfm(x: u8, c: u8) -> u8
     match c
     {
          1 => x,
-         2 => C_GFM_2 [x as uint],
-         3 => C_GFM_3 [x as uint],
-         9 => C_GFM_9 [x as uint],
-        11 => C_GFM_11[x as uint],
-        13 => C_GFM_13[x as uint],
-        14 => C_GFM_14[x as uint],
+         2 => C_GFM_2 [x as usize],
+         3 => C_GFM_3 [x as usize],
+         9 => C_GFM_9 [x as usize],
+        11 => C_GFM_11[x as usize],
+        13 => C_GFM_13[x as usize],
+        14 => C_GFM_14[x as usize],
          _ => panic!(),
     }
 }
@@ -325,7 +324,7 @@ fn mix_columns(x: [u8; 16]) -> [u8; 16]
 {
     let mut o: [u8; 16] = unsafe { mem::uninitialized() };
 
-    for i in iter::range_step(0,16,4)
+    for i in (0..16).step_by(4)
     {
         o[i+0] = gfm(x[i+0], 2) ^ gfm(x[i+1], 3) ^ gfm(x[i+2], 1) ^ gfm(x[i+3], 1);
         o[i+1] = gfm(x[i+0], 1) ^ gfm(x[i+1], 2) ^ gfm(x[i+2], 3) ^ gfm(x[i+3], 1);
@@ -340,7 +339,7 @@ fn mix_columns_inv(x: [u8; 16]) -> [u8; 16]
 {
     let mut o: [u8; 16] = unsafe { mem::uninitialized() };
 
-    for i in iter::range_step(0,16,4)
+    for i in (0..16).step_by(4)
     {
         o[i+0] = gfm(x[i+0],14) ^ gfm(x[i+1],11) ^ gfm(x[i+2],13) ^ gfm(x[i+3], 9);
         o[i+1] = gfm(x[i+0], 9) ^ gfm(x[i+1],14) ^ gfm(x[i+2],11) ^ gfm(x[i+3],13);
@@ -357,7 +356,7 @@ fn enc_block(d: [u8; 16], kv: KeySchedule) -> [u8; 16]
 
     st = add_round_key(st, kv[0]);
 
-    for i in range(1,1+NROUND)
+    for i in 1..(1+NROUND)
     {
         st = sub_bytes(st);
         st = shift_rows(st);
@@ -377,7 +376,7 @@ fn dec_block(d: [u8; 16], kv: KeySchedule) -> [u8; 16]
 {
     let mut st = d;
 
-    for i in range(1,1+NROUND).rev()
+    for i in (1..(1+NROUND)).rev()
     {
         st = add_round_key(st, kv[i]);
 
@@ -410,9 +409,10 @@ pub fn dec_ecb(d: [u8; 16], k: [u8; 16]) -> [u8; 16]
 }
 
 
+#[cfg(test)]
 mod test
 {
-    extern crate serialize;
+    extern crate rustc_serialize;
 
     use std::mem;
     use super::{NROUND};
@@ -420,13 +420,13 @@ mod test
 
     fn fr_str(s: &str) -> [u8; 16]
     {
-        use self::serialize::hex::FromHex;
+        use self::rustc_serialize::hex::FromHex;
         use std::slice::bytes::copy_memory;
 
         let mut t: [u8; 16] = unsafe { mem::uninitialized() };
 
         match s.from_hex() {
-            Ok(v) => copy_memory(&mut t, v.as_slice()),
+            Ok(v) => copy_memory(v.as_slice(), &mut t),
             Err(_) => panic!("Bad test data"),
         }
 
@@ -453,7 +453,7 @@ mod test
     {
         use super::{key_schedule};
 
-        for i in range(1,1+NROUND)
+        for i in 1..(1+NROUND)
         {
             let ki = fr_str(TEST_SCHED[i-1]);
             let ko = fr_str(TEST_SCHED[i]);
@@ -494,14 +494,14 @@ mod test
     }
 
 
-    const GF_POLY: uint = 0x11b;    // AES GF(2^8) Polynomial
-    const GF_HIGH: uint = 0x100;
+    const GF_POLY: u64 = 0x11b;    // AES GF(2^8) Polynomial
+    const GF_HIGH: u64 = 0x100;
 
     fn gfm(_a: u8, _b: u8) -> u8
     {
-        let mut a: uint = _a as uint;
-        let mut b: uint = _b as uint;
-        let mut r: uint = 0x00;
+        let mut a: u64 = _a as u64;
+        let mut b: u64 = _b as u64;
+        let mut r: u64 = 0x00;
 
         while a != 0
         {
@@ -522,16 +522,15 @@ mod test
         r as u8
     }
 
-    fn gf_polydiv(x: uint, d: uint) -> (uint, uint)
+    fn gf_polydiv(x: u64, d: u64) -> (u64, u64)
     {
-        use std::num::Int;
-        use std::uint;
+        use std::u64;
 
-        let mut q: uint = 0;
-        let mut r: uint = x;
+        let mut q: u64 = 0;
+        let mut r: u64 = x;
 
-        let     db = uint::BITS - d.leading_zeros();
-        let mut rb = uint::BITS - r.leading_zeros();
+        let     db = (u64::BITS as u64) - (d.leading_zeros() as u64);
+        let mut rb = (u64::BITS as u64) - (r.leading_zeros() as u64);
 
         while rb >= db
         {
@@ -551,8 +550,8 @@ mod test
 
     fn gf_inv(x: u8) -> u8
     {
-        let mut rr: uint = GF_POLY;
-        let mut r:  uint = x as uint;
+        let mut rr: u64 = GF_POLY;
+        let mut r:  u64 = x as u64;
 
         let mut tt: u8 = 0;
         let mut t:  u8 = 1;
@@ -593,7 +592,7 @@ mod test
     {
         use super::{C_GFM_2,C_GFM_3,C_GFM_9,C_GFM_11,C_GFM_13,C_GFM_14};
 
-        for i in range(0,256)
+        for i in 0..256
         {
             assert_eq!(gfm(i as u8, 2), C_GFM_2 [i]);
             assert_eq!(gfm(i as u8, 3), C_GFM_3 [i]);
@@ -616,17 +615,16 @@ mod test
     #[test]
     fn test_sbox()
     {
-        use std::num::Int;
         use super::{C_SBOX,C_SBOX_INV};
 
-        for i in range(0,256)
+        for i in 0..256
         {
             let t = gf_inv(i as u8);
 
             let mut s: u8 = t;
             let mut x: u8 = t;
 
-            for _ in range::<uint>(0,4)
+            for _ in 0..4
             {
                 s = s.rotate_left(1);
                 x ^= s;
@@ -637,9 +635,9 @@ mod test
             assert_eq!(C_SBOX[i], x);
         }
 
-        for i in range(0,256)
+        for i in 0..256
         {
-            assert_eq!(C_SBOX_INV[C_SBOX[i] as uint], i as u8);
+            assert_eq!(C_SBOX_INV[C_SBOX[i] as usize], i as u8);
         }
     }
 }

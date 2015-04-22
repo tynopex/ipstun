@@ -1,7 +1,7 @@
 use std::mem;
-use std::iter;
 
-const C_IDX: [uint; 64] =
+
+const C_IDX: [usize; 64] =
 [
     0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
     1,  6, 11,  0,  5, 10, 15,  4,  9, 14,  3,  8, 13,  2,  7, 12,
@@ -9,7 +9,7 @@ const C_IDX: [uint; 64] =
     0,  7, 14,  5, 12,  3, 10,  1,  8, 15,  6, 13,  4, 11,  2,  9,
 ];
 
-const C_ROT: [uint; 64] =
+const C_ROT: [u32; 64] =
 [
     7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,
     5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,
@@ -39,7 +39,7 @@ const C_SIN: [u32; 64] =
 ];
 
 #[allow(unused_parens)]
-fn get_blk(raw: &[u8], i: uint, len: uint, rem: uint, nbl: uint) -> [u32; 16]
+fn get_blk(raw: &[u8], i: usize, len: usize, rem: usize, nbl: usize) -> [u32; 16]
 {
     let blen = ( len * 8 );
     let brem = ( rem * 8 );
@@ -47,7 +47,7 @@ fn get_blk(raw: &[u8], i: uint, len: uint, rem: uint, nbl: uint) -> [u32; 16]
 
     let mut blk: [u32; 16] = unsafe { mem::uninitialized() };
 
-    for j in iter::range_step::<uint>(0, 64, 4)
+    for j in (0..64).step_by(4)
     {
         let jj = base + j;
         let mut x: u32 = 0;
@@ -75,25 +75,25 @@ fn get_blk(raw: &[u8], i: uint, len: uint, rem: uint, nbl: uint) -> [u32; 16]
 }
 
 #[allow(non_snake_case)]
-fn XX(a: u32, b: u32, c: u32, d: u32, i: uint, X: &[u32]) -> u32
+fn XX(a: u32, b: u32, c: u32, d: u32, i: usize, X: &[u32]) -> u32
 {
     // b + ( ( a + FN(b,c,d) + X[k] + T[i] ) <<< s )
 
-    let k: uint = C_IDX[i];
-    let s: uint = C_ROT[i];
+    let k: usize = C_IDX[i];
+    let s: u32   = C_ROT[i];
 
     let fx: u32 = match i / 16
     {
-        0 => ( b & c ) + ( !b & d ),    // F
-        1 => ( b & d ) + ( c & !d ),    // G
+        0 => ( b & c ) | ( !b & d ),    // F
+        1 => ( b & d ) | ( c & !d ),    // G
         2 => ( b ^ c ^ d ),             // H
         3 => c ^ ( b | !d ),            // I
         _ => panic!()
     };
 
-    let xx: u32 = a + fx + X[k] + C_SIN[i];
-    let xx: u32 = ( xx << s ) + ( xx >> ( 32 - s ) );
-    let xx: u32 = b + xx;
+    let xx: u32 = a.wrapping_add(fx).wrapping_add(X[k]).wrapping_add(C_SIN[i]);
+    let xx: u32 = xx.rotate_left(s);
+    let xx: u32 = b.wrapping_add(xx);
 
     xx
 }
@@ -109,7 +109,7 @@ pub fn hash(raw: &[u8]) -> [u8; 16]
 
     let mut ctx: [u32; 4] = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476];
 
-    for i in iter::range(0, nbl)
+    for i in 0..nbl
     {
         let blk = get_blk( raw, i, len, rem, nbl );
 
@@ -118,7 +118,7 @@ pub fn hash(raw: &[u8]) -> [u8; 16]
         let mut C: u32 = ctx[2];
         let mut D: u32 = ctx[3];
 
-        for j in iter::range_step(0, 64, 4)
+        for j in (0..64).step_by(4)
         {
             A = XX( A, B, C, D, j+0, &blk );
             D = XX( D, A, B, C, j+1, &blk );
@@ -126,17 +126,17 @@ pub fn hash(raw: &[u8]) -> [u8; 16]
             B = XX( B, C, D, A, j+3, &blk );
         }
 
-        ctx[0] += A;
-        ctx[1] += B;
-        ctx[2] += C;
-        ctx[3] += D;
+        ctx[0] = ctx[0].wrapping_add(A);
+        ctx[1] = ctx[1].wrapping_add(B);
+        ctx[2] = ctx[2].wrapping_add(C);
+        ctx[3] = ctx[3].wrapping_add(D);
     }
 
     let mut md5: [u8; 16] = unsafe { mem::uninitialized() };
 
-    for j in iter::range(0, 4)
+    for j in 0..4
     {
-        for i in iter::range(0, 4)
+        for i in 0..4
         {
             md5[i + j*4] = ( ctx[j] >> (8 * i) ) as u8;
         }
@@ -150,14 +150,14 @@ pub fn hash(raw: &[u8]) -> [u8; 16]
 mod tests
 {
     extern crate test;
-    extern crate serialize;
+    extern crate rand;
+    extern crate rustc_serialize;
 
     use std::mem;
-    use std::rand;
 
     fn do_md5(msg: &str) -> String
     {
-        use self::serialize::hex::ToHex;
+        use self::rustc_serialize::hex::ToHex;
 
         let hash = super::hash( msg.as_bytes() );
 
@@ -178,7 +178,7 @@ mod tests
     #[bench]
     fn test_speed(b: &mut test::Bencher)
     {
-        use std::rand::Rng;
+        use self::rand::Rng;
         use std::str::from_utf8_unchecked;
 
         // Random &str

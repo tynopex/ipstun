@@ -5,11 +5,11 @@ use util::PacketError::{TruncatedPacket,IllegalPacket};
 use super::{PayloadKind,payl_kind};
 
 
-#[derive(Copy)]
+#[derive(Clone,Copy)]
 pub struct Payload<'a>
 {
     pub NextPayload: PayloadKind,
-    pub Length: uint,
+    pub Length: usize,
     pub Payload: &'a [u8],
 }
 
@@ -25,7 +25,7 @@ pub type PayloadIterResult<'a> = Result<(PayloadKind, Payload<'a>), PacketError>
 
 impl<'a> Payload<'a>
 {
-    pub fn Size() -> uint { 4 }
+    pub fn Size() -> usize { 4 }
 
     pub fn parse(dat: &[u8]) -> ParseResult<Payload>
     {
@@ -34,7 +34,7 @@ impl<'a> Payload<'a>
             return Err(TruncatedPacket);
         }
 
-        let len = get_u16(&dat[2..]) as uint;
+        let len = get_u16(&dat[2..]) as usize;
 
         if len < Payload::Size()
         {
@@ -47,7 +47,7 @@ impl<'a> Payload<'a>
         }
 
         let payload = Payload {
-            NextPayload: payl_kind(dat[0] as uint),
+            NextPayload: payl_kind(dat[0] as u32),
             Length: len,
             Payload: &dat[Payload::Size()..len],
             };

@@ -10,7 +10,7 @@ const DOI_IPSEC: u32 = 0x00000001;
 const SIT_IDENTITY_ONLY: u32 = 0x00000001;
 
 
-#[derive(Copy)]
+#[derive(Clone,Copy)]
 pub struct SecAssoc<'a>
 {
     DOI: u32,
@@ -21,7 +21,7 @@ pub struct SecAssoc<'a>
 
 impl<'a> SecAssoc<'a>
 {
-    pub fn HeaderSize() -> uint { 8 }
+    pub fn HeaderSize() -> usize { 8 }
 
     pub fn parse(dat: &[u8]) -> ParseResult<SecAssoc>
     {

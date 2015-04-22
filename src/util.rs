@@ -5,9 +5,9 @@ use std::mem;
 use std::slice;
 
 
-const CHUNK_SIZE: uint = 16;
+const CHUNK_SIZE: usize = 16;
 
-struct HexDumpFmt<'a>
+pub struct HexDumpFmt<'a>
 {
     dat: &'a [u8],
     pfx: &'a str,
@@ -63,7 +63,7 @@ macro_rules! get_u8_N{
         pub fn $f(raw: &[u8]) -> [u8; $N]
         {
             let mut tmp: [u8; $N] = unsafe { mem::uninitialized() };
-            slice::bytes::copy_memory(&mut tmp, &raw[..$N]);
+            slice::bytes::copy_memory(&raw[..$N], &mut tmp);
             tmp
         }
     )

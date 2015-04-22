@@ -5,8 +5,8 @@ use super::{PayloadKind,payl_kind};
 use super::payload::PayloadIter;
 
 
-#[derive(Debug,Copy)]
-enum ExchangeKind
+#[derive(Debug,Clone,Copy)]
+pub enum ExchangeKind
 {
     NONE,
     Base,
@@ -18,7 +18,7 @@ enum ExchangeKind
 }
 
 
-#[derive(Copy)]
+#[derive(Clone,Copy)]
 pub struct Packet<'a>
 {
     pub InitiatorCookie: [u8; 8],
@@ -36,7 +36,7 @@ pub struct Packet<'a>
 
 impl<'a> Packet<'a>
 {
-    pub fn HeaderSize() -> uint { 28 }
+    pub fn HeaderSize() -> usize { 28 }
 
     pub fn parse(dat: &[u8]) -> ParseResult<Packet>
     {
@@ -58,7 +58,7 @@ impl<'a> Packet<'a>
         let header = Packet {
             InitiatorCookie: get_u8_8(&dat[0..]),
             ResponderCookie: get_u8_8(&dat[8..]),
-            NextPayload: payl_kind(dat[16] as uint),
+            NextPayload: payl_kind(dat[16] as u32),
             Version: dat[17],
             ExchangeType: ex,
             Flags: dat[19],
@@ -78,12 +78,12 @@ impl<'a> Packet<'a>
             _ => return Err(UnsupportedPacket),
         }
 
-        if dat.len() < header.Length as uint
+        if dat.len() < header.Length as usize
         {
             return Err(TruncatedPacket);
         }
 
-        if dat.len() > header.Length as uint
+        if dat.len() > header.Length as usize
         {
             return Err(IllegalPacket);
         }

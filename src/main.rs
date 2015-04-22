@@ -1,5 +1,6 @@
-#![feature(slicing_syntax,int_uint)]
-#![allow(dead_code,unstable)]
+#![feature(slice_patterns,core,step_by)]
+#![cfg_attr(test, feature(test,convert))]
+#![allow(dead_code)]
 
 mod ipsec;
 mod util;
