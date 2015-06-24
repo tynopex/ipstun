@@ -1,4 +1,4 @@
-#![feature(slice_patterns,core,step_by)]
+#![feature(slice_patterns,slice_bytes,num_bits_bytes,step_by)]
 #![cfg_attr(test, feature(test,convert))]
 #![allow(dead_code)]
 
