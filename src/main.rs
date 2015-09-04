@@ -1,5 +1,5 @@
-#![feature(slice_patterns,slice_bytes,num_bits_bytes,step_by)]
-#![cfg_attr(test, feature(test,convert))]
+#![feature(slice_patterns,slice_bytes,step_by)]
+#![cfg_attr(test, feature(test,convert,num_bits_bytes))]
 #![allow(dead_code)]
 
 mod ipsec;
