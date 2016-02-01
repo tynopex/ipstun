@@ -2,7 +2,6 @@
 
 use std::fmt;
 use std::mem;
-use std::slice;
 
 
 const CHUNK_SIZE: usize = 16;
@@ -63,7 +62,7 @@ macro_rules! get_u8_N{
         pub fn $f(raw: &[u8]) -> [u8; $N]
         {
             let mut tmp: [u8; $N] = unsafe { mem::uninitialized() };
-            slice::bytes::copy_memory(&raw[..$N], &mut tmp);
+            tmp.clone_from_slice(&raw[..$N]);
             tmp
         }
     )

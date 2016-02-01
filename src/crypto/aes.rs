@@ -421,12 +421,11 @@ mod test
     fn fr_str(s: &str) -> [u8; 16]
     {
         use self::rustc_serialize::hex::FromHex;
-        use std::slice::bytes::copy_memory;
 
         let mut t: [u8; 16] = unsafe { mem::uninitialized() };
 
         match s.from_hex() {
-            Ok(v) => copy_memory(v.as_slice(), &mut t),
+            Ok(v) => t.clone_from_slice(v.as_slice()),
             Err(_) => panic!("Bad test data"),
         }
 
@@ -524,13 +523,11 @@ mod test
 
     fn gf_polydiv(x: u64, d: u64) -> (u64, u64)
     {
-        use std::u64;
-
         let mut q: u64 = 0;
         let mut r: u64 = x;
 
-        let     db = (u64::BITS as u64) - (d.leading_zeros() as u64);
-        let mut rb = (u64::BITS as u64) - (r.leading_zeros() as u64);
+        let     db = 64 - (d.leading_zeros() as u64);
+        let mut rb = 64 - (r.leading_zeros() as u64);
 
         while rb >= db
         {
