@@ -151,11 +151,8 @@ pub fn hash(raw: &[u8]) -> [u8; 16]
 #[cfg(test)]
 mod tests
 {
-    extern crate test;
     extern crate rand;
     extern crate rustc_serialize;
-
-    use std::mem;
 
     fn do_md5(msg: &str) -> String
     {
@@ -175,20 +172,5 @@ mod tests
         assert_eq!("1d64dce239c4437b7736041db089e1b9", do_md5("abcdefghijklmnop"));
         assert_eq!("9a8d9845a6b4d82dfcb2c2e35162c830", do_md5("abcdefghijklmnopq"));
         assert_eq!("6d2286301265512f019781cc0ce7a39f", do_md5("abcdefghijklmnopqrstuvwxyz0123456789"));
-    }
-
-    #[bench]
-    fn test_speed(b: &mut test::Bencher)
-    {
-        use self::rand::Rng;
-        use std::str::from_utf8_unchecked;
-
-        // Random &str
-        let mut raw: [u8; 4096] = unsafe { mem::uninitialized() };
-        rand::thread_rng().fill_bytes(&mut raw);
-        let msg = unsafe { from_utf8_unchecked(&raw) };
-
-        b.iter(|| do_md5(msg));
-        b.bytes = 4096;
     }
 }
