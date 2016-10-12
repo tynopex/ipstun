@@ -47,17 +47,17 @@ fn get_blk(raw: &[u8], i: usize, len: usize, rem: usize, nbl: usize) -> [u32; 16
 
     let mut blk: [u32; 16] = unsafe { mem::uninitialized() };
 
-    for j in (0..64).step_by(4)
+    for jj in 0..16
     {
-        let jj = base + j;
+        let j = base + jj*4;
         let mut x: u32 = 0;
 
-        if jj + 0 < len { x += ( (raw[jj + 0] as u32)       ); }
-        if jj + 1 < len { x += ( (raw[jj + 1] as u32) <<  8 ); }
-        if jj + 2 < len { x += ( (raw[jj + 2] as u32) << 16 ); }
-        if jj + 3 < len { x += ( (raw[jj + 3] as u32) << 24 ); }
+        if j + 0 < len { x += ( (raw[j + 0] as u32)       ); }
+        if j + 1 < len { x += ( (raw[j + 1] as u32) <<  8 ); }
+        if j + 2 < len { x += ( (raw[j + 2] as u32) << 16 ); }
+        if j + 3 < len { x += ( (raw[j + 3] as u32) << 24 ); }
 
-        blk[j / 4] = x;
+        blk[jj] = x;
     }
 
     if ( i == ( len / 64 ) )
@@ -118,8 +118,10 @@ pub fn hash(raw: &[u8]) -> [u8; 16]
         let mut C: u32 = ctx[2];
         let mut D: u32 = ctx[3];
 
-        for j in (0..64).step_by(4)
+        for jj in 0..16
         {
+            let j = jj * 4;
+
             A = XX( A, B, C, D, j+0, &blk );
             D = XX( D, A, B, C, j+1, &blk );
             C = XX( C, D, A, B, j+2, &blk );

@@ -224,8 +224,10 @@ fn key_schedule(ctx: [u8; 16], i: usize) -> [u8; 16]
     out[2] ^= t[2];
     out[3] ^= t[3];
 
-    for i in (0..12).step_by(4)
+    for ii in 0..3
     {
+        let i = ii * 4;
+
         out[i+4] ^= out[i+0];
         out[i+5] ^= out[i+1];
         out[i+6] ^= out[i+2];
@@ -324,8 +326,10 @@ fn mix_columns(x: [u8; 16]) -> [u8; 16]
 {
     let mut o: [u8; 16] = unsafe { mem::uninitialized() };
 
-    for i in (0..16).step_by(4)
+    for ii in 0..4
     {
+        let i = ii * 4;
+
         o[i+0] = gfm(x[i+0], 2) ^ gfm(x[i+1], 3) ^ gfm(x[i+2], 1) ^ gfm(x[i+3], 1);
         o[i+1] = gfm(x[i+0], 1) ^ gfm(x[i+1], 2) ^ gfm(x[i+2], 3) ^ gfm(x[i+3], 1);
         o[i+2] = gfm(x[i+0], 1) ^ gfm(x[i+1], 1) ^ gfm(x[i+2], 2) ^ gfm(x[i+3], 3);
@@ -339,8 +343,10 @@ fn mix_columns_inv(x: [u8; 16]) -> [u8; 16]
 {
     let mut o: [u8; 16] = unsafe { mem::uninitialized() };
 
-    for i in (0..16).step_by(4)
+    for ii in 0..4
     {
+        let i = ii * 4;
+
         o[i+0] = gfm(x[i+0],14) ^ gfm(x[i+1],11) ^ gfm(x[i+2],13) ^ gfm(x[i+3], 9);
         o[i+1] = gfm(x[i+0], 9) ^ gfm(x[i+1],14) ^ gfm(x[i+2],11) ^ gfm(x[i+3],13);
         o[i+2] = gfm(x[i+0],13) ^ gfm(x[i+1], 9) ^ gfm(x[i+2],14) ^ gfm(x[i+3],11);
